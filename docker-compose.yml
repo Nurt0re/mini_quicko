@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: mini-quicko-db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: mini_quicko
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d mini_quicko"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mini-quicko-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mini-quicko-app
+    environment:
+      DB_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - mini-quicko-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  mini-quicko-network:
+    driver: bridge

@@ -1,0 +1,18 @@
+server:
+  port: 8080
+  host: 0.0.0.0
+
+database:
+  host: postgres
+  port: "5432"
+  user: admin
+  dbname: mini_quicko
+  sslmode: disable
+
+kaspi:
+  default_city_id: "710000000"
+
+
+app:
+  environment: development
+  log_level: info
